@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SQL Query Helper — ceritakan kebutuhan data Anda dalam bahasa sehari-hari dan dapatkan query SQL yang dihasilkan AI." />
+  <title>SQL Query Helper</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════
+       Header
+  ══════════════════════════════════════ -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <div class="brand">
+        <!-- Logo gambar — disembunyikan jika gagal dimuat -->
+        <img
+          src="sqllogo.png"
+          alt="Logo SQL Query Helper"
+          class="brand-logo"
+          onerror="this.style.display='none'"
+        />
+        <span class="brand-name">SQL Query Helper</span>
+      </div>
+
+      <button id="themeToggle" class="btn-icon" aria-label="Aktifkan mode gelap" title="Aktifkan mode gelap">
+        <!-- Ikon matahari (ditampilkan di mode gelap) -->
+        <svg class="icon icon-sun" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1"  x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22"  x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1"  y1="12" x2="3"  y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
+        </svg>
+        <!-- Ikon bulan (ditampilkan di mode terang) -->
+        <svg class="icon icon-moon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ══════════════════════════════════════
+       Konten utama
+  ══════════════════════════════════════ -->
+  <main class="main-content" role="main">
+
+    <!-- ── Tagline ── -->
+    <section class="hero" aria-label="Pengantar">
+      <h1 class="hero-title">Ceritakan kebutuhan data Anda, dapatkan query SQL-nya.</h1>
+      <p class="hero-sub">Mendukung <strong>MySQL</strong>, <strong>PostgreSQL</strong>, dan <strong>SQLite</strong>. Bisa digunakan dalam Bahasa Indonesia maupun Inggris.</p>
+    </section>
+
+    <!-- ── Kartu input ── -->
+    <div class="card" id="inputCard">
+
+      <!-- Baris 1: dialek SQL -->
+      <div class="field-group">
+        <label class="field-label" for="dialect">Dialek SQL</label>
+        <select id="dialect" class="select" aria-required="true">
+          <option value="MySQL">MySQL</option>
+          <option value="PostgreSQL">PostgreSQL</option>
+          <option value="SQLite">SQLite</option>
+        </select>
+      </div>
+
+      <!-- Baris 2: permintaan pengguna -->
+      <div class="field-group">
+        <label class="field-label" for="userRequest">
+          Permintaan Anda
+          <span class="badge">Wajib diisi</span>
+        </label>
+        <textarea
+          id="userRequest"
+          class="textarea"
+          rows="4"
+          placeholder="cth. Tampilkan semua pelanggan yang melakukan pembelian bulan lalu."
+          aria-label="Deskripsikan kebutuhan data Anda dalam bahasa sehari-hari"
+          aria-required="true"
+          maxlength="2000"
+          spellcheck="true"
+        ></textarea>
+        <div class="char-count-row">
+          <span class="char-count" id="charCount" aria-live="polite">0 / 2000</span>
+        </div>
+      </div>
+
+      <!-- Baris 3: skema tabel (opsional) -->
+      <div class="field-group">
+        <label class="field-label" for="schema">
+          Skema Tabel
+          <span class="badge">Opsional</span>
+        </label>
+        <textarea
+          id="schema"
+          class="textarea"
+          rows="5"
+          placeholder="Tempel pernyataan CREATE TABLE Anda di sini (cth. CREATE TABLE orders (id INT, ...))&#10;Jika dikosongkan, AI akan menyebutkan asumsi yang digunakan."
+          aria-label="Skema tabel — pernyataan CREATE TABLE (opsional)"
+          spellcheck="false"
+        ></textarea>
+      </div>
+
+      <!-- Baris 4: contoh cepat -->
+      <div class="field-group">
+        <p class="field-label" id="examplesLabel">Contoh cepat</p>
+        <div class="examples-row" role="list" aria-labelledby="examplesLabel">
+          <button
+            class="chip"
+            role="listitem"
+            data-example="Show me all orders placed in the last 7 days along with the customer name and total amount."
+          >Pesanan 7 hari terakhir</button>
+          <button
+            class="chip"
+            role="listitem"
+            data-example="Tampilkan 10 produk dengan stok paling sedikit beserta nama supplier-nya."
+          >Stok produk rendah</button>
+          <button
+            class="chip"
+            role="listitem"
+            data-example="Find the top 5 customers by total revenue, showing their name and total amount spent."
+          >Top 5 pelanggan</button>
+          <button
+            class="chip"
+            role="listitem"
+            data-example="Tampilkan semua pesanan beserta nama pelanggan dan nama produk yang dipesan, dengan menggabungkan tabel orders, customers, dan products."
+          >JOIN tiga tabel</button>
+          <button
+            class="chip"
+            role="listitem"
+            data-example="Hitung total pendapatan per kategori produk dan tampilkan hanya kategori dengan pendapatan di atas 10 juta, diurutkan dari yang terbesar."
+          >GROUP BY &amp; HAVING</button>
+          <button
+            class="chip"
+            role="listitem"
+            data-example="Tampilkan semua transaksi yang terjadi antara tanggal 1 Januari 2024 hingga 31 Maret 2024."
+          >Filter rentang tanggal</button>
+          <button
+            class="chip"
+            role="listitem"
+            data-example="Tampilkan nama pelanggan yang belum pernah melakukan pembelian sama sekali (gunakan subquery)."
+          >Subquery pelanggan</button>
+          <button
+            class="chip"
+            role="listitem"
+            data-example="List the 10 most recently created user accounts, showing username, email, and registration date."
+          >Akun terbaru (EN)</button>
+          <button
+            class="chip"
+            role="listitem"
+            data-example="Cari semua produk yang namanya mengandung kata 'baju' tanpa memperhatikan huruf besar atau kecil."
+          >Pencarian teks LIKE</button>
+          <button
+            class="chip"
+            role="listitem"
+            data-example="Hapus semua data pesanan yang statusnya 'dibatalkan' dan sudah lebih dari 1 tahun yang lalu."
+          >Hapus data lama (DELETE)</button>
+        </div>
+      </div>
+
+      <!-- Baris 5: tombol submit -->
+      <div class="actions-row">
+        <button id="generateBtn" class="btn-primary" aria-label="Buat query SQL">
+          <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Buat Query
+        </button>
+      </div>
+
+      <!-- Baris 6: pesan error -->
+      <div id="errorMsg" class="error-banner" role="alert" aria-live="assertive" hidden>
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span id="errorText"></span>
+      </div>
+    </div>
+    <!-- /inputCard -->
+
+    <!-- ── Indikator loading ── -->
+    <div id="loadingState" class="loading-state" aria-live="polite" aria-label="Sedang membuat query SQL…" hidden>
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Sedang membuat query…</span>
+    </div>
+
+    <!-- ── Kartu hasil ── -->
+    <div class="card result-card" id="resultCard" hidden aria-label="Hasil query SQL yang dihasilkan">
+
+      <div class="result-header">
+        <h2 class="result-title">Query yang Dihasilkan</h2>
+        <button id="copyBtn" class="btn-secondary" aria-label="Salin SQL ke clipboard">
+          <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="2" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          <span id="copyBtnText">Salin SQL</span>
+        </button>
+      </div>
+
+      <pre class="code-block" aria-label="Kode SQL"><code id="sqlOutput"></code></pre>
+
+      <div class="explanation-block">
+        <h3 class="explanation-title">Penjelasan</h3>
+        <p id="explanationOutput" class="explanation-text"></p>
+      </div>
+    </div>
+    <!-- /resultCard -->
+
+  </main>
+
+  <!-- ══════════════════════════════════════
+       Footer
+  ══════════════════════════════════════ -->
+  <footer class="site-footer" role="contentinfo">
+    <p>IBM Capstone Project · IT Track · AI Agent for Programming</p>
+    <p>SQL Query Helper © 2026 Muhamad Atallah Alfa Dzaky · Capstone Project Hacktiv8 x IBM · Dikembangkan dengan bantuan IBM Bob (AI)</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
